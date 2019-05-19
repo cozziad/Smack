@@ -1,5 +1,6 @@
 package com.ehword.smack
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.view.GravityCompat
@@ -38,7 +39,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun loginBtnNavClicked (view: View){}
+    fun loginBtnNavClicked (view: View){
+        val loginIntent = Intent(this, LoginActivity::class.java)
+        startActivity(loginIntent)
+
+    }
     fun addChannelButtonClicked (view:View){}
     fun sendMessageButtonClicked (view:View){}
 }
