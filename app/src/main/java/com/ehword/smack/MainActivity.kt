@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
+import android.view.View
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,6 +38,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    fun loginBtnNavClicked (view: View){}
+    fun addChannelButtonClicked (view:View){}
+    fun sendMessageButtonClicked (view:View){}
 }
 
