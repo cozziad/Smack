@@ -1,5 +1,6 @@
 package com.ehword.smack
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -12,6 +13,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     fun loginLoginButtonClicked (view: View){}
-    fun loginSignupButtonClicked (view:View){}
+    fun loginSignupButtonClicked (view:View) {
+        val signUpIntent = Intent(this, SignupActivity::class.java)
+        startActivity(signUpIntent)
+    }
 
 }

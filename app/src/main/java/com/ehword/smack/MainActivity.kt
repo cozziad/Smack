@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
     fun loginBtnNavClicked (view: View){
         val loginIntent = Intent(this, LoginActivity::class.java)
         startActivity(loginIntent)
-
     }
     fun addChannelButtonClicked (view:View){}
     fun sendMessageButtonClicked (view:View){}
