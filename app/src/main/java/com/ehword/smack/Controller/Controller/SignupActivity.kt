@@ -1,9 +1,10 @@
-package com.ehword.smack
+package com.ehword.smack.Controller.Controller
 
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import com.ehword.smack.R
 import kotlinx.android.synthetic.main.activity_signup.*
 import java.util.*
 
