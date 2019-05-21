@@ -46,7 +46,15 @@ class SignupActivity : AppCompatActivity() {
         avatarColor = "[$sR,$sG,$sB,1]"
     }
     fun generateUserClicked (view: View){
-        AuthService.registerUser(this,createEmailText.text.toString(),createPasswordText.text.toString()){}
+        val email = createEmailText.text.toString()
+        val password = createPasswordText.text.toString()
+        AuthService.registerUser(this,email,password){registerSuccsss ->
+            if (registerSuccsss){
+                AuthService.loginUser(this,email,password ){loginSuccess ->
+                   if (loginSuccess){}
+                }
+            }
+        }
     }
 
 }
