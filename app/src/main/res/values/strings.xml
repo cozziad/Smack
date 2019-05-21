@@ -20,8 +20,6 @@
     <string name="login">LOGIN</string>
     <string name="tap_to_generate_user_avatar">Tap to generate user avatar</string>
     <string name="generate_background_color">Generate Background Color</string>
-    <string name="email">email</string>
-    <string name="password">password</string>
     <string name="create_user">Create User</string>
     <string name="user_name">user name</string>
 </resources>

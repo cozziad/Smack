@@ -8,6 +8,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.JsonRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.ehword.smack.Controller.Utilities.URL_ADDUSER
 import com.ehword.smack.Controller.Utilities.URL_LOGIN
 import com.ehword.smack.Controller.Utilities.URL_REGISTER
 import org.json.JSONException
@@ -75,5 +76,46 @@ object AuthService {
         Volley.newRequestQueue(context).add(registerRequest)
     }
 
+    fun createUser (context: Context, name:String, email:String, avatar:String, avatarColor:String,complete: (Boolean) -> Unit)
+    {
+        val jsonBody = JSONObject()
+        jsonBody.put ("name", name)
+        jsonBody.put ("email",email)
+        jsonBody.put ("avatar", avatar)
+        jsonBody.put ("avatarColor",avatarColor)
+        val requestBody = jsonBody.toString()
+
+        val createRequest = object : JsonObjectRequest(Method.POST, URL_ADDUSER, null,Response.Listener{ response ->
+            try {
+                UserDataService.avatarColor = response.getString("avatarColor")
+                UserDataService.avatarName = response.getString("avatar")
+                UserDataService.email = response.getString("email")
+                UserDataService.name = response.getString("name")
+                UserDataService.id = response.getString("id")
+                complete(true)
+            } catch (e: JSONException){
+                Log.d("JSON", "EXC:" + e.localizedMessage)
+                complete (false)
+            }
+        },Response.ErrorListener {
+                error -> Log.d("Error","Could not add user:$error")
+            complete (false)
+        }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                return requestBody.toByteArray()
+            }
+
+            override fun getHeaders():MutableMap<String, String> {
+                val headers = HashMap<String,String>()
+                headers.put("Authorization", "Bearer $authToken")
+                return headers
+            }
+        }
+        Volley.newRequestQueue(context).add(createRequest)
+    }
 
 }
