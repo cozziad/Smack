@@ -30,7 +30,7 @@ object AuthService {
         val registerRequest = object : StringRequest(Request.Method.POST, URL_REGISTER, Response.Listener{ response ->
         complete(true)
         },Response.ErrorListener {
-            error -> Log.d("Error","Could not register user:$error")
+            error -> Log.d("Error","Could not register user: $error")
             complete (false)
         }) {
             override fun getBodyContentType(): String {
@@ -58,11 +58,11 @@ object AuthService {
                 isLoggedIn = true
                 complete(true)
             } catch (e: JSONException){
-                Log.d("JSON", "EXC:" + e.localizedMessage)
+                Log.d("JSON", "EXC: " + e.localizedMessage)
                 complete (false)
             }
         },Response.ErrorListener {
-                error -> Log.d("Error","Could not login user:$error")
+                error -> Log.d("Error","Could not login user: $error")
             complete (false)
         }) {
             override fun getBodyContentType(): String {
@@ -81,24 +81,24 @@ object AuthService {
         val jsonBody = JSONObject()
         jsonBody.put ("name", name)
         jsonBody.put ("email",email)
-        jsonBody.put ("avatar", avatar)
+        jsonBody.put ("avatarName", avatar)
         jsonBody.put ("avatarColor",avatarColor)
         val requestBody = jsonBody.toString()
 
         val createRequest = object : JsonObjectRequest(Method.POST, URL_ADDUSER, null,Response.Listener{ response ->
             try {
                 UserDataService.avatarColor = response.getString("avatarColor")
-                UserDataService.avatarName = response.getString("avatar")
+                UserDataService.avatarName = response.getString("avatarName")
                 UserDataService.email = response.getString("email")
                 UserDataService.name = response.getString("name")
-                UserDataService.id = response.getString("id")
+                UserDataService.id = response.getString("_id")
                 complete(true)
             } catch (e: JSONException){
-                Log.d("JSON", "EXC:" + e.localizedMessage)
+                Log.d("JSON", "EXC: " + e.localizedMessage)
                 complete (false)
             }
         },Response.ErrorListener {
-                error -> Log.d("Error","Could not add user:$error")
+                error -> Log.d("Error","Could not add user: $error")
             complete (false)
         }) {
             override fun getBodyContentType(): String {
