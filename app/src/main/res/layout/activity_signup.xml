@@ -15,16 +15,16 @@
             android:id="@+id/createUsernameText" android:layout_marginEnd="32dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="32dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="32dp"
-            app:layout_constraintTop_toTopOf="parent" android:hint="user name"/>
+            app:layout_constraintTop_toTopOf="parent" android:hint="@string/user_name"/>
     <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:inputType="textPersonName|textEmailAddress"
             android:ems="10"
             android:id="@+id/createEmailText" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/createUsernameText" android:layout_marginEnd="32dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="32dp"
-            app:layout_constraintStart_toStartOf="parent" android:hint="email"/>
+            app:layout_constraintStart_toStartOf="parent" android:hint="@string/email"/>
     <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -33,9 +33,9 @@
             android:id="@+id/createPasswordText" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/createEmailText" android:layout_marginStart="32dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginEnd="32dp"
-            app:layout_constraintEnd_toEndOf="parent" android:hint="password"/>
+            app:layout_constraintEnd_toEndOf="parent" android:hint="@string/password"/>
     <TextView
-            android:text="Tap to generate user avatar"
+            android:text="@string/tap_to_generate_user_avatar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/textView" android:layout_marginTop="24dp"
@@ -50,7 +50,7 @@
             android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" android:onClick="generateUserAvatar"/>
     <Button
-            android:text="Generate Background Color"
+            android:text="@string/generate_background_color"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/backgroundColorButton" android:layout_marginTop="16dp"
@@ -59,7 +59,7 @@
             android:layout_marginStart="32dp" android:background="@color/colorPrimary"
             android:textColor="@android:color/white" android:textStyle="bold" android:onClick="generateColorClicked"/>
     <Button
-            android:text="Create User"
+            android:text="@string/create_user"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/createCreateUserButton" android:layout_marginBottom="16dp"

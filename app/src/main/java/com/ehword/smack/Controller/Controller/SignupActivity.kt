@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import com.ehword.smack.Controller.Services.AuthService
 import com.ehword.smack.R
 import kotlinx.android.synthetic.main.activity_signup.*
 import java.util.*
@@ -44,6 +45,8 @@ class SignupActivity : AppCompatActivity() {
 
         avatarColor = "[$sR,$sG,$sB,1]"
     }
-    fun generateUserClicked (view: View){}
+    fun generateUserClicked (view: View){
+        AuthService.registerUser(this,createEmailText.text.toString(),createPasswordText.text.toString()){}
+    }
 
 }
