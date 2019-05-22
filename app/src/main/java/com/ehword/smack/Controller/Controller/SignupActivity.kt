@@ -17,7 +17,7 @@ import java.util.*
 class SignupActivity : AppCompatActivity() {
 
     var userAvatar = "profileDefault"
-    var avatarColor = "[0.5,0.5,0.5,1]"
+    var avatarColor = "[0.5, 0.5, 0.5, 1]"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,10 +47,10 @@ class SignupActivity : AppCompatActivity() {
         createAvatarImageView.setBackgroundColor(Color.rgb(r, g, b))
 
         val sR = r.toDouble() / 255
-        val sG = r.toDouble() / 255
-        val sB = r.toDouble() / 255
+        val sG = g.toDouble() / 255
+        val sB = b.toDouble() / 255
 
-        avatarColor = "[$sR,$sG,$sB,1]"
+        avatarColor = "[$sR, $sG, $sB, 1]"
     }
 
     fun generateUserClicked(view: View) {
