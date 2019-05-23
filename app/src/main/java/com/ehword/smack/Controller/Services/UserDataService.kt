@@ -1,6 +1,7 @@
 package com.ehword.smack.Controller.Services
 
 import android.graphics.Color
+import com.ehword.smack.Controller.Controller.App
 import java.util.*
 
 object UserDataService {
@@ -16,9 +17,9 @@ object UserDataService {
         var avatarName = ""
         var email = ""
         var name = ""
-        AuthService.authToken = ""
-        AuthService.isLoggedIn = false
-        AuthService.userEmail = ""
+        App.sharedPreferences.authToken = ""
+        App.sharedPreferences.isLoggedIn = false
+        App.sharedPreferences.userEmail = ""
     }
 
     fun returnAvatarColor (components: String) : Int {

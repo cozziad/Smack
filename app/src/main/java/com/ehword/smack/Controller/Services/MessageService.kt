@@ -6,6 +6,7 @@ import android.widget.ArrayAdapter
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
+import com.ehword.smack.Controller.Controller.App
 import com.ehword.smack.Controller.Model.Channel
 import com.ehword.smack.Controller.Utilities.URL_FINDALLCHANNELS
 import kotlinx.android.synthetic.main.activity_main.*
@@ -43,11 +44,11 @@ object MessageService {
 
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
-                headers.put("Authorization", "Bearer ${AuthService.authToken}")
+                headers.put("Authorization", "Bearer ${App.sharedPreferences.authToken}")
                 return headers
             }
         }
-        Volley.newRequestQueue(context).add(channelsRequest)
+        App.sharedPreferences.requestQueue.add(channelsRequest)
     }
 }
 

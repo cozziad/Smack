@@ -62,6 +62,9 @@ class MainActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         setupAdaptors()
+        if (App.sharedPreferences.isLoggedIn){
+            AuthService.findUserByEmail(this){}
+        }
     }
 
     override fun onResume() {
@@ -102,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
     private val userDataChangeReceiver = object : BroadcastReceiver(){
         override fun onReceive(context: Context, intent: Intent?) {
-            if (AuthService.isLoggedIn) {
+            if (App.sharedPreferences.isLoggedIn) {
                 println("in UDCR")
                 nav_drawer_header_include.userNameNavHeader.text = UserDataService.name
                 nav_drawer_header_include.userEmailNavHeader.text = UserDataService.email
@@ -132,7 +135,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loginBtnNavClicked (view: View){
-        if (AuthService.isLoggedIn)
+        if (App.sharedPreferences.isLoggedIn)
         {
             UserDataService.logout()
             nav_drawer_header_include.userNameNavHeader.text = ""
@@ -149,7 +152,7 @@ class MainActivity : AppCompatActivity() {
     }
     fun addChannelButtonClicked (view:View){
         hideKeyboard ()
-        if (AuthService.isLoggedIn){
+        if (App.sharedPreferences.isLoggedIn){
             val builder = AlertDialog.Builder(this)
             val dialogView = layoutInflater.inflate(R.layout.add_channel_dialog,null)
 
