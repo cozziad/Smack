@@ -6,13 +6,15 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Message
+import android.service.autofill.UserData
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +22,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
+import com.ehword.smack.Controller.Adapters.MessageAdapter
 import com.ehword.smack.Controller.Model.Channel
+import com.ehword.smack.Controller.Model.Message
 import com.ehword.smack.Controller.Services.AuthService
 import com.ehword.smack.Controller.Services.MessageService
 import com.ehword.smack.Controller.Services.UserDataService
@@ -38,12 +42,17 @@ class MainActivity : AppCompatActivity() {
 
     val socket = IO.socket(SOCKET_URL)
     lateinit var channelAdapter: ArrayAdapter<Channel>
+    lateinit var messageAdapter: MessageAdapter
     var selectedChannel : Channel? = null
 
     private fun setupAdaptors (){
         channelAdapter = ArrayAdapter(this,android.R.layout.simple_list_item_1, MessageService.channels)
         channel_list.adapter = channelAdapter
 
+        messageAdapter = MessageAdapter(this,MessageService.messages)
+        messageListView.adapter = messageAdapter
+        val layoutManager = LinearLayoutManager(this)
+        messageListView.layoutManager = layoutManager
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         socket.connect()
         socket.on("channelCreated",onNewChannel)
+        socket.on("message",onNewMesage)
         //val fab: FloatingActionButton = findViewById(R.id.fab)
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
@@ -77,16 +87,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-
-        println("on resume: ${UserDataService.email}")
         LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(
             BROADCAST_USER_DATA_CHANGE))
         super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        println("on pause")
     }
 
     override fun onDestroy() {
@@ -96,18 +99,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val onNewChannel = Emitter.Listener { args ->
-//        println(args[0] as String)
-//        println(args[1] as String)
-//        println(args[2] as String)
         // socket listeners run on a background thread
-        runOnUiThread{
-            val channelName = args[0] as String
-            val channelDesc = args[1] as String
-            val channelId = args[2] as String
+        if (App.sharedPreferences.isLoggedIn) {
+            runOnUiThread {
+                val channelName = args[0] as String
+                val channelDesc = args[1] as String
+                val channelId = args[2] as String
 
-            val newChannel = Channel(channelName,channelDesc,channelId)
-            MessageService.channels.add(newChannel)
-            channelAdapter.notifyDataSetChanged()
+                val newChannel = Channel(channelName, channelDesc, channelId)
+                MessageService.channels.add(newChannel)
+                channelAdapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+    private val onNewMesage = Emitter.Listener { args ->
+        if (App.sharedPreferences.isLoggedIn) {
+            runOnUiThread {
+                val messageBody = args[0] as String
+                val channelId = args[2] as String
+                if (channelId == selectedChannel?.id) {
+                    val userName = args[3] as String
+                    val userAvatar = args[4] as String
+                    val userAvatarColor = args[5] as String
+                    val id = args[6] as String
+                    val timestamp = args[7] as String
+
+                    val newMessage =
+                        Message(messageBody, userName, channelId, userAvatar, userAvatarColor, id, timestamp)
+                    MessageService.messages.add(newMessage)
+                    messageAdapter.notifyDataSetChanged()
+                    messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
+                }
+            }
         }
     }
 
@@ -120,7 +144,6 @@ class MainActivity : AppCompatActivity() {
                 val resourceId = resources.getIdentifier(UserDataService.avatarName,"drawable",packageName)
                 nav_drawer_header_include.userImageNavHeader.setImageResource(resourceId)
                 nav_drawer_header_include.loginButtonNavHeader.text = "Logout"
-                println(UserDataService.avatarColor)
                 nav_drawer_header_include.userImageNavHeader.setBackgroundColor(UserDataService.returnAvatarColor(UserDataService.avatarColor))
 
                 MessageService.getChannels(context){complete ->
@@ -139,7 +162,19 @@ class MainActivity : AppCompatActivity() {
 
     fun updateWithChannel(){
         mainChannelName.text = "#${selectedChannel?.name}"
-        //Download message with channel
+        if (selectedChannel != null)
+        {
+            MessageService.getMessages(selectedChannel!!.id){ complete ->
+                if(complete){
+                    for (message in MessageService.messages){
+                        messageAdapter.notifyDataSetChanged()
+                        if (messageAdapter.itemCount > 0){
+                            messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onBackPressed() {
@@ -155,6 +190,8 @@ class MainActivity : AppCompatActivity() {
         if (App.sharedPreferences.isLoggedIn)
         {
             UserDataService.logout()
+            channelAdapter.notifyDataSetChanged()
+            messageAdapter.notifyDataSetChanged()
             nav_drawer_header_include.userNameNavHeader.text = ""
             nav_drawer_header_include.userEmailNavHeader.text = ""
             nav_drawer_header_include.userImageNavHeader.setImageResource(R.drawable.profiledefault)
@@ -193,14 +230,23 @@ class MainActivity : AppCompatActivity() {
 
     }
     fun sendMessageButtonClicked (view:View){
-        hideKeyboard()
+        if (App.sharedPreferences.isLoggedIn && messageTextField.text.isNotEmpty() && selectedChannel != null){
+            val userId = UserDataService.id
+            val channelId = selectedChannel!!.id
+            socket.emit("newMessage",messageTextField.text.toString(),
+                userId, channelId, UserDataService.name, UserDataService.avatarName,UserDataService.avatarColor)
+            messageTextField.text.clear()
+            hideKeyboard()
+            messageAdapter.notifyDataSetChanged()
+            messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
+        }
     }
 
     fun hideKeyboard ()
     {
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         if (inputManager.isAcceptingText){
-            inputManager.hideSoftInputFromWindow(currentFocus.windowToken,0)
+            inputManager.hideSoftInputFromWindow(currentFocus?.windowToken,0)
         }
     }
 }

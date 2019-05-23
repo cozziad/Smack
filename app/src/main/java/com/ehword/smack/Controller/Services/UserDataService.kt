@@ -20,14 +20,14 @@ object UserDataService {
         App.sharedPreferences.authToken = ""
         App.sharedPreferences.isLoggedIn = false
         App.sharedPreferences.userEmail = ""
+        MessageService.clearChannels()
+        MessageService.clearMessages()
     }
 
     fun returnAvatarColor (components: String) : Int {
-        println (components)
         val stripedColor = components.replace("[","")
             .replace("]","")
             .replace(",","")
-        println (stripedColor)
         var r  = 0
         var g = 0
         var b = 0
@@ -37,7 +37,6 @@ object UserDataService {
         g = (scanner.nextDouble() * 255).toInt()
         b = (scanner.nextDouble() * 255).toInt()
 
-        println ("R:$r G: $g B:$b ")
         return Color.rgb(r,g,b)
     }
 }
