@@ -82,7 +82,6 @@ class SignupActivity : AppCompatActivity() {
                     errorToast()
                 }
             }
-
         }
         else
         {

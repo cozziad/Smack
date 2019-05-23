@@ -18,22 +18,30 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
+import com.ehword.smack.Controller.Model.Channel
 import com.ehword.smack.Controller.Services.AuthService
+import com.ehword.smack.Controller.Services.MessageService
 import com.ehword.smack.Controller.Services.UserDataService
 import com.ehword.smack.Controller.Utilities.BROADCAST_USER_DATA_CHANGE
+import com.ehword.smack.Controller.Utilities.SOCKET_URL
 import com.ehword.smack.R
+import io.socket.client.IO
+import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 
 class MainActivity : AppCompatActivity() {
 
+    val socket = IO.socket(SOCKET_URL)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
+        socket.connect()
+        socket.on("channelCreated",onNewChannel)
         //val fab: FloatingActionButton = findViewById(R.id.fab)
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
@@ -44,17 +52,50 @@ class MainActivity : AppCompatActivity() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+    }
 
-        hideKeyboard ()
+    override fun onResume() {
+
+        println("on resume: ${UserDataService.email}")
         LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(
             BROADCAST_USER_DATA_CHANGE))
+        super.onResume()
 
+    }
 
+    override fun onPause() {
+        super.onPause()
+        println("on pause")
+    }
+
+    override fun onDestroy() {
+        socket.disconnect()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userDataChangeReceiver)
+        super.onDestroy()
+    }
+
+    private val onNewChannel = Emitter.Listener { args ->
+//        println(args[0] as String)
+//        println(args[1] as String)
+//        println(args[2] as String)
+        // socket listeners run on a background thread
+        runOnUiThread{
+            val channelName = args[0] as String
+            val channelDesc = args[1] as String
+            val channelId = args[2] as String
+
+            val newChannel = Channel(channelName,channelDesc,channelId)
+            MessageService.channels.add(newChannel)
+            println(newChannel.name)
+            println(newChannel.description)
+            println(newChannel.id)
+        }
     }
 
     private val userDataChangeReceiver = object : BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
             if (AuthService.isLoggedIn) {
+                println("in UDCR")
                 nav_drawer_header_include.userNameNavHeader.text = UserDataService.name
                 nav_drawer_header_include.userEmailNavHeader.text = UserDataService.email
                 val resourceId = resources.getIdentifier(UserDataService.avatarName,"drawable",packageName)
@@ -103,6 +144,7 @@ class MainActivity : AppCompatActivity() {
                     val descTextField = dialogView.findViewById<EditText>(R.id.addChannelDescriptionTxt)
                     val channelName = nameTextField.text.toString()
                     val channelDesc = descTextField.text.toString()
+                    socket.emit("newChannel",channelName,channelDesc)
                 }
                 .setNegativeButton("Cancel"){dialog, which ->
                     Toast.makeText(this,"Channel Not Added, please try again",Toast.LENGTH_SHORT).show()
@@ -115,7 +157,9 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-    fun sendMessageButtonClicked (view:View){}
+    fun sendMessageButtonClicked (view:View){
+        hideKeyboard()
+    }
 
     fun hideKeyboard ()
     {

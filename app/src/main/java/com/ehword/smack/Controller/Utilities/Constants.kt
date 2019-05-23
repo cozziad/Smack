@@ -8,3 +8,5 @@ const val URL_ADDUSER = "${BASE_URL}user/add"
 const val URL_GETUSER = "${BASE_URL}user/byEmail/"
 
 const val BROADCAST_USER_DATA_CHANGE = "BROADCAST USER DATA CHANGED"
+
+const val SOCKET_URL = "http://10.0.2.2:3005/"
