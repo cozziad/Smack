@@ -2,6 +2,7 @@ package com.ehword.smack.Controller.Adapters
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.View
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,6 +13,10 @@ import com.ehword.smack.Controller.Services.UserDataService
 import com.ehword.smack.R
 import kotlinx.android.synthetic.main.content_main.view.*
 import java.text.FieldPosition
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MessageAdapter (val context:Context,val messages: ArrayList <Message> ): RecyclerView.Adapter<MessageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -38,9 +43,25 @@ class MessageAdapter (val context:Context,val messages: ArrayList <Message> ): R
             userImage.setImageResource(resourceId)
             userImage.setBackgroundColor(UserDataService.returnAvatarColor(message.userAvatarColor))
             userName.text = message.userName
-            timeStamp.text = message.timestamp
+            timeStamp.text = returnDateString(message.timestamp)
             messageBody.text = message.message
-            println("BM ran")
+
+        }
+
+        fun returnDateString(isoString: String): String{
+
+            val isoFormatter = SimpleDateFormat("yyyy-mm-dd'T'hh:mm:ss.SSS'Z'", Locale.getDefault())
+            isoFormatter.timeZone = TimeZone.getTimeZone("UTC")
+            var convertedDate = Date()
+            try{
+                convertedDate = isoFormatter.parse(isoString)
+            }
+            catch (e: ParseException){
+                Log.d("Date Parse", "Cannot parse date")
+                return isoString
+            }
+            val outDateFormat = SimpleDateFormat("E, h:mm a", Locale.getDefault())
+            return outDateFormat.format(convertedDate)
         }
     }
 }

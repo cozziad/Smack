@@ -75,6 +75,9 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
         setupAdaptors()
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(
+            BROADCAST_USER_DATA_CHANGE))
+
         channel_list.setOnItemClickListener { _, _, i, l ->
             selectedChannel = MessageService.channels[i]
             drawer_layout.closeDrawer(GravityCompat.START)
@@ -84,12 +87,6 @@ class MainActivity : AppCompatActivity() {
         if (App.sharedPreferences.isLoggedIn){
             AuthService.findUserByEmail(this){}
         }
-    }
-
-    override fun onResume() {
-        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(
-            BROADCAST_USER_DATA_CHANGE))
-        super.onResume()
     }
 
     override fun onDestroy() {
@@ -197,6 +194,7 @@ class MainActivity : AppCompatActivity() {
             nav_drawer_header_include.userImageNavHeader.setImageResource(R.drawable.profiledefault)
             nav_drawer_header_include.loginButtonNavHeader.text = "Login"
             nav_drawer_header_include.userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
+            mainChannelName.text = "Please Login"
         }
         else
         {
